@@ -17,10 +17,14 @@ app.config['SECRET_KEY'] = 'devkey'
 Bootstrap(app)
 
 
-@app.route("/")
+@app.route("/", methods = ["GET", "POST"])
 def hello():
     form = IdeaForm()
-    return render_template("index.html", form=form)
+    submitted_idea = "<No idea submitted>"
+    if form.validate_on_submit():
+        submitted_idea = form.idea.data
+
+    return render_template("index.html", form=form, submitted_idea=submitted_idea)
 
 if __name__ == "__main__":
     app.run(debug=True)
