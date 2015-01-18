@@ -23,7 +23,7 @@ db = SQLAlchemy(app)
 
 class Idea(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    idea_name = db.Column(db.String(140), unique=True)
+    idea_name = db.Column(db.String(140))
 
     def __init__(self, idea):
         self.idea_name = idea
