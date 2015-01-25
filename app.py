@@ -11,6 +11,7 @@ from flask.ext.security import Security, SQLAlchemyUserDatastore, \
             UserMixin, RoleMixin, login_required
 
 import os
+import wtf_helpers
 
 class IdeaForm(Form):
     idea_name = StringField('Idea name', validators=[DataRequired()])
@@ -62,6 +63,7 @@ class Idea(db.Model):
 db.create_all()
 
 Bootstrap(app)
+wtf_helpers.add_helpers(app)
 
 
 @app.route("/", methods = ["GET", "POST"])

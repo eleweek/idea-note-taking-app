@@ -1,0 +1,45 @@
+{% extends "security/base.html" %}
+
+{% block styles %}
+    {{ super() }}
+    <link href="{{url_for('static', filename='signin.css')}}" rel="stylesheet">
+{% endblock %}
+
+{% block security_content %}
+    <form class="form-signin" action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
+       {{ login_user_form.hidden_tag() }}
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="Email address" required autofocus>
+        {%- for error in login_user_form.email.errors %}
+            <p class="help-block">{{error}}</p>
+        {%- endfor %}
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
+        {%- for error in login_user_form.password.errors %}
+            <p class="error">{{error}}</p>
+        {%- endfor %}
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me" id="remember" name="remember"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+
+      <br />
+
+      <div class="panel panel-default">
+        <div class="panel-body">
+          {% if security.registerable %}
+            Don't have an account yet? <a href="{{ url_for_security('register') }}">Create a new account</a><br />
+          {% endif %}
+          {% if security.recoverable %}
+            <a href="{{ url_for_security('forgot_password') }}">Forgot your password?</a><br />
+          {% endif %}
+          {% if security.confirmable %}
+            Didn't receive your confirmation email? <a href="{{ url_for_security('send_confirmation') }}">Resend confirmation email</a>
+          {% endif %}
+        </div>
+      </div>
+{% endblock %}
