@@ -68,14 +68,12 @@ wtf_helpers.add_helpers(app)
 
 @app.route("/", methods = ["GET", "POST"])
 def index():
-    flash(u'HAHAHA DEBUG MESSAGE', 'error')
     form = IdeaForm()
     if form.validate_on_submit():
         idea = Idea(form.idea_name.data)
         db.session.add(idea)
         db.session.commit()
 
-    #list_of_ideas = Idea.query.all()
     list_of_ideas = Idea.query
     return render_template("index.html", form=form, list_of_ideas=list_of_ideas)
 
