@@ -7,6 +7,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import current_user
 from flask.ext.security import Security, SQLAlchemyUserDatastore, \
             UserMixin, RoleMixin, login_required
 
@@ -47,18 +48,23 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
 
+    ideas = db.relationship('Idea', backref='user', lazy='dynamic')
+
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
 class Idea(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     idea_name = db.Column(db.String(140))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, idea):
+    def __init__(self, idea, user):
         self.idea_name = idea
+        self.user_id = user.id
 
     def __repr__(self):
         return '<Idea %r>' % self.id
+
 
 db.create_all()
 
@@ -66,16 +72,27 @@ Bootstrap(app)
 wtf_helpers.add_helpers(app)
 
 
-@app.route("/", methods = ["GET", "POST"])
+@app.route("/")
 def index():
-    form = IdeaForm()
-    if form.validate_on_submit():
-        idea = Idea(form.idea_name.data)
+    users = User.query
+    return render_template("index.html", users=users)
+
+@app.route("/ideas/<user_email>", methods = ["GET", "POST"])
+def ideas(user_email):
+    user = User.query.filter_by(email=user_email).first_or_404()
+
+    if user == current_user:
+        form = IdeaForm()
+    else:
+        form = None
+
+    if form and form.validate_on_submit():
+        idea = Idea(form.idea_name.data, user)
         db.session.add(idea)
         db.session.commit()
 
-    list_of_ideas = Idea.query
-    return render_template("index.html", form=form, list_of_ideas=list_of_ideas)
+    list_of_ideas = user.ideas
+    return render_template("ideas.html", form=form, list_of_ideas=list_of_ideas, user_email=user_email)
 
 if __name__ == "__main__":
     app.run(debug=True)

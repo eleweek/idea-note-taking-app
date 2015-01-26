@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}This is a profile of {{user}} {% endblock %}
+
+{% block content %}
+  <div class="container">
+    {% if form %} 
+        <h1>Hey, got an idea? </h1>
+        {{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
+    {% else %} 
+        <h1> The profile of {{user_email}} </h1>
+    {% endif %}
+    <p>
+        <ol>
+          {% for idea in list_of_ideas %}
+          <li>{{idea.idea_name}}</ li>
+          {% else %}
+          <li> No ideas yet! </li>   
+          {% endfor %}
+        </ol>
+    <p>
+  </div>
+{% endblock %}
