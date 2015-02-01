@@ -1,9 +1,9 @@
 from flask import Flask
-from flask import render_template, flash
+from flask import render_template, flash, abort
 from flask_bootstrap import Bootstrap
 
 from flask_wtf import Form
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, BooleanField
 from wtforms.validators import DataRequired
 
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -16,6 +16,7 @@ import wtf_helpers
 
 class IdeaForm(Form):
     idea_name = StringField('Idea name', validators=[DataRequired()])
+    is_private = BooleanField('private')
     submit_button = SubmitField('Add idea')
 
 app = Flask(__name__)
@@ -56,6 +57,7 @@ security = Security(app, user_datastore)
 class Idea(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     idea_name = db.Column(db.String(140))
+    is_private = db.Column(db.Boolean())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __init__(self, idea, user):
@@ -77,9 +79,18 @@ def index():
     users = User.query
     return render_template("index.html", users=users)
 
-@app.route("/ideas/<user_email>", methods = ["GET", "POST"])
-def ideas(user_email):
+@app.route("/ideas/<user_email>/<privacy_filter>", methods = ["GET", "POST"])
+@app.route("/ideas/<user_email>", defaults={'privacy_filter' : 'public'}, methods = ["GET", "POST"])
+def ideas(user_email, privacy_filter):
     user = User.query.filter_by(email=user_email).first_or_404()
+    if privacy_filter == 'private' and user != current_user:
+        abort(403)
+    elif privacy_filter == 'private':
+        is_private = True
+    elif privacy_filter == 'public':
+        is_private = False
+    else:
+        abort(404)
 
     if user == current_user:
         form = IdeaForm()
@@ -87,12 +98,14 @@ def ideas(user_email):
         form = None
 
     if form and form.validate_on_submit():
+        # TODO: populate_obj?
         idea = Idea(form.idea_name.data, user)
+        idea.is_private = form.is_private.data
         db.session.add(idea)
         db.session.commit()
 
-    list_of_ideas = user.ideas
-    return render_template("ideas.html", form=form, list_of_ideas=list_of_ideas, user_email=user_email)
+    list_of_ideas = user.ideas.filter_by(is_private=is_private)
+    return render_template("ideas.html", form=form, list_of_ideas=list_of_ideas, user_email=user_email, is_private=is_private)
 
 if __name__ == "__main__":
     app.run(debug=True)
