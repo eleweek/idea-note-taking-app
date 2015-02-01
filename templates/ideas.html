@@ -19,8 +19,8 @@
             <div class="btn-group" role="group">
                 <a href={{url_for('ideas', user_email=user_email, privacy_filter='public')}} class="btn {% if not is_private %} btn-primary {% endif %}">Public</a>
                 <a href={{url_for('ideas', user_email=user_email, privacy_filter='private')}} class="btn {% if is_private %} btn-primary {% endif %}">Private</a>
+            </div>
         {% endif %}
-        </div>
         <div class="panel panel-default">
             <div class="panel-heading">{% if not is_private %} Public {%else %} Private {% endif %}list of ideas</div>
             {% if list_of_ideas.count() %}
