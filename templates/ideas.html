@@ -10,14 +10,25 @@
     {% else %} 
         <h1> The profile of {{user_email}} </h1>
     {% endif %}
-    <p>
-        <ol>
-          {% for idea in list_of_ideas %}
-          <li>{{idea.idea_name}}</ li>
-          {% else %}
-          <li> No ideas yet! </li>   
-          {% endfor %}
-        </ol>
-    <p>
+    <div class="panel panel-default">
+        <div class="panel-heading">Public list of ideas</div>
+        {% if list_of_ideas.count() %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th> Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  {% for idea in list_of_ideas %}
+                      <tr><td>{{loop.index}}</td><td>{{idea.idea_name}}</td></tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+          <p>No ideas yet</p>
+        {% endif %}
+    </div>
   </div>
 {% endblock %}
