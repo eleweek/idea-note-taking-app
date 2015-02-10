@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, abort
+from flask import render_template, abort, flash
 from flask_bootstrap import Bootstrap
 
 from flask_wtf import Form
@@ -106,8 +106,10 @@ def ideas(user_email, privacy_filter):
         # TODO: populate_obj?
         idea = Idea(form.idea_name.data, user)
         idea.is_private = form.is_private.data
+        form.idea_name.data = ""
         db.session.add(idea)
         db.session.commit()
+        flash("Idea was added successfully", "success")
 
     list_of_ideas = user.ideas.filter_by(is_private=is_private)
     return render_template("ideas.html", form=form, list_of_ideas=list_of_ideas, user_email=user_email, is_private=is_private)
