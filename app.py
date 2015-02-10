@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, abort, flash
+from flask import render_template, abort, flash, request
 from flask_bootstrap import Bootstrap
 
 from flask_wtf import Form
@@ -7,7 +7,7 @@ from wtforms import StringField, SubmitField, BooleanField
 from wtforms.validators import DataRequired
 
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import current_user
+from flask.ext.login import current_user, login_required
 from flask.ext.security import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin
 
@@ -82,6 +82,29 @@ wtf_helpers.add_helpers(app)
 def index():
     users = User.query
     return render_template("index.html", users=users)
+
+
+@app.route("/edit_idea/<idea_id>", methods=["GET", "POST"])
+@login_required
+def edit_idea(idea_id):
+    idea = Idea.query.get_or_404(idea_id)
+    if idea.user_id != current_user.id:
+        abort(403)
+
+    form = IdeaForm()
+    if request.method == "GET":
+        form.is_private.data = idea.is_private
+        form.idea_name.data = idea.idea_name
+
+    if form.validate_on_submit():
+        print form.is_private.data
+        print form.idea_name.data
+        idea.is_private = form.is_private.data
+        idea.name = form.idea_name.data
+        db.session.commit()
+        flash("Idea was changed successfully", "success")
+
+    return render_template("edit_idea.html", form=form)
 
 
 @app.route("/ideas/<user_email>/<privacy_filter>", methods=["GET", "POST"])

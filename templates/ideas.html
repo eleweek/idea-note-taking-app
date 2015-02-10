@@ -34,7 +34,13 @@
                     </thead>
                     <tbody>
                       {% for idea in list_of_ideas %}
-                          <tr><td>{{loop.index}}</td><td>{{idea.idea_name}}</td></tr>
+                          <tr>
+                            <td>{{loop.index}}</td>
+                            <td>
+                              <a href="{{url_for("edit_idea", idea_id=idea.id)}}"><span class="glyphicon glyphicon-pencil"></span></a>
+                              {{idea.idea_name}}
+                            </td>
+                          </tr>
                       {% endfor %}
                     </tbody>
                 </table>

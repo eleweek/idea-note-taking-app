@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block title %} Editing {% endblock %}
+
+{% block content %}
+  {{super()}}
+  {{ wtf.quick_form(form, form_type='inline', button_map={'submit_button': 'primary'}) }}
+{% endblock %}
