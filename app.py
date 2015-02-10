@@ -97,8 +97,6 @@ def edit_idea(idea_id):
         form.idea_name.data = idea.idea_name
 
     if form.validate_on_submit():
-        print form.is_private.data
-        print form.idea_name.data
         idea.is_private = form.is_private.data
         idea.name = form.idea_name.data
         db.session.commit()
