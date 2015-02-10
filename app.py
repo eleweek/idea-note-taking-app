@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, flash, abort
+from flask import render_template, abort
 from flask_bootstrap import Bootstrap
 
 from flask_wtf import Form
@@ -9,10 +9,11 @@ from wtforms.validators import DataRequired
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import current_user
 from flask.ext.security import Security, SQLAlchemyUserDatastore, \
-            UserMixin, RoleMixin, login_required
+    UserMixin, RoleMixin
 
 import os
 import wtf_helpers
+
 
 class IdeaForm(Form):
     idea_name = StringField('Idea name', validators=[DataRequired()])
@@ -32,13 +33,15 @@ app.config['SECURITY_FLASH_MESSAGES'] = True
 db = SQLAlchemy(app)
 
 roles_users = db.Table('roles_users',
-        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-        db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+
 
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
+
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -53,6 +56,7 @@ class User(db.Model, UserMixin):
 
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
+
 
 class Idea(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,8 +83,9 @@ def index():
     users = User.query
     return render_template("index.html", users=users)
 
-@app.route("/ideas/<user_email>/<privacy_filter>", methods = ["GET", "POST"])
-@app.route("/ideas/<user_email>", defaults={'privacy_filter' : 'public'}, methods = ["GET", "POST"])
+
+@app.route("/ideas/<user_email>/<privacy_filter>", methods=["GET", "POST"])
+@app.route("/ideas/<user_email>", defaults={'privacy_filter': 'public'}, methods=["GET", "POST"])
 def ideas(user_email, privacy_filter):
     user = User.query.filter_by(email=user_email).first_or_404()
     if privacy_filter == 'private' and user != current_user:
