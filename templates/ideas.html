@@ -3,6 +3,7 @@
 {% block title %}This is a profile of {{user}} {% endblock %}
 
 {% block content %}
+  {{super()}}
   <div class="container">
     {% if form %} 
         <p> <h1>Hey, got an idea? </h1> </p>
